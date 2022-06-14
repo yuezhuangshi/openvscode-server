@@ -974,7 +974,7 @@ function createTaskPty(alias: string, context: GitpodExtensionContext, contextTo
 					await util.promisify(context.supervisor.terminal.shutdown.bind(context.supervisor.terminal, request, context.supervisor.metadata, {
 						deadline: Date.now() + context.supervisor.deadlines.short
 					}))();
-					context.logger.trace(`${alias} terminal closed`);
+					context.logger.trace(`${alias} terminal shutdown request send`);
 				} catch (e) {
 					if (e && e.code === grpc.status.NOT_FOUND) {
 						// Swallow, the pty has already been killed
@@ -983,7 +983,7 @@ function createTaskPty(alias: string, context: GitpodExtensionContext, contextTo
 						console.error(`${alias} terminal: shutdown failed:`, e);
 					}
 				}
-			}, 1000);
+			}, 5000);
 
 		},
 		handleInput: async (data: string) => {
