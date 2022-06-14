@@ -30,7 +30,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		return;
 	}
 
-	registerTasks(gitpodContext, (options) => vscode.window.createTerminal(options));
+	registerTasks(gitpodContext);
 	installInitialExtensions(gitpodContext);
 	registerHearbeat(gitpodContext);
 

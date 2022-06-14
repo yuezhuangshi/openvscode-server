@@ -35,12 +35,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	registerDesktop();
 	registerAuth(gitpodContext);
 	registerPorts(gitpodContext);
-	registerTasks(gitpodContext, (options, parentTerminal) => {
-		return vscode.window.createTerminal({
-			...options,
-			location: parentTerminal ? { parentTerminal } : vscode.TerminalLocation.Panel
-		});
-	}).then(() => {
+	registerTasks(gitpodContext).then(() => {
 		if (vscode.window.terminals.length === 0) {
 			// Always show a terminal if no task terminals are created
 			vscode.window.createTerminal();

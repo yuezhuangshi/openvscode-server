@@ -19,7 +19,7 @@ import { PortServiceClient } from '@gitpod/supervisor-api-grpc/lib/port_grpc_pb'
 import { StatusServiceClient } from '@gitpod/supervisor-api-grpc/lib/status_grpc_pb';
 import { ContentStatusRequest, TasksStatusRequest, TasksStatusResponse, TaskState, TaskStatus } from '@gitpod/supervisor-api-grpc/lib/status_pb';
 import { TerminalServiceClient } from '@gitpod/supervisor-api-grpc/lib/terminal_grpc_pb';
-import { ListenTerminalRequest, ListenTerminalResponse, ListTerminalsRequest, SetTerminalSizeRequest, ShutdownTerminalRequest, Terminal as SupervisorTerminal, TerminalSize as SupervisorTerminalSize, WriteTerminalRequest } from '@gitpod/supervisor-api-grpc/lib/terminal_pb';
+import { ListenTerminalRequest, ListenTerminalResponse, ListTerminalsRequest, SetTerminalSizeRequest, Terminal as SupervisorTerminal, TerminalSize as SupervisorTerminalSize, WriteTerminalRequest } from '@gitpod/supervisor-api-grpc/lib/terminal_pb';
 import { TokenServiceClient } from '@gitpod/supervisor-api-grpc/lib/token_grpc_pb';
 import { GetTokenRequest } from '@gitpod/supervisor-api-grpc/lib/token_pb';
 import * as grpc from '@grpc/grpc-js';
@@ -782,7 +782,7 @@ function installCLIProxy(context: vscode.ExtensionContext, logger: Log): string 
 
 type TerminalOpenMode = 'tab-before' | 'tab-after' | 'split-left' | 'split-right' | 'split-top' | 'split-bottom';
 
-export async function registerTasks(context: GitpodExtensionContext, createTerminal: (options: vscode.ExtensionTerminalOptions, parent: vscode.Terminal | undefined) => vscode.Terminal): Promise<void> {
+export async function registerTasks(context: GitpodExtensionContext): Promise<void> {
 	const tokenSource = new vscode.CancellationTokenSource();
 	const token = tokenSource.token;
 	context.subscriptions.push({
@@ -856,16 +856,13 @@ export async function registerTasks(context: GitpodExtensionContext, createTermi
 			const parentTerminal = (openMode && openMode !== 'tab-before' && openMode !== 'tab-after') ? prevTerminal : undefined;
 			const pty = createTaskPty(alias, context, token);
 
-			// Delegate creation of the terminal to the extension caller
-			// if proposed API usage is required.
-			const terminal = createTerminal(
-				{
-					name: taskTerminal.getTitle(),
-					pty,
-					iconPath: new vscode.ThemeIcon('terminal')
-				},
-				parentTerminal
-			);
+			const terminal = vscode.window.createTerminal({
+				name: taskTerminal.getTitle(),
+				pty,
+				iconPath: new vscode.ThemeIcon('terminal'),
+				location: parentTerminal ? { parentTerminal } : vscode.TerminalLocation.Panel
+			});
+
 			terminal.show();
 			prevTerminal = terminal;
 		}
@@ -954,37 +951,10 @@ function createTaskPty(alias: string, context: GitpodExtensionContext, contextTo
 				await new Promise(resolve => setTimeout(resolve, 2000));
 			}
 		},
-		close: async () => {
-			if (token.isCancellationRequested) {
-				return;
-			}
-			tokenSource.cancel();
-
-			// await to make sure that close is not cause by the extension host process termination
-			// in such case we don't want to stop supervisor terminals
-			setTimeout(async () => {
-				if (contextToken.isCancellationRequested) {
-					return;
-				}
-				// Attempt to kill the pty, it may have already been killed at this
-				// point but we want to make sure
-				try {
-					const request = new ShutdownTerminalRequest();
-					request.setAlias(alias);
-					await util.promisify(context.supervisor.terminal.shutdown.bind(context.supervisor.terminal, request, context.supervisor.metadata, {
-						deadline: Date.now() + context.supervisor.deadlines.short
-					}))();
-					context.logger.trace(`${alias} terminal shutdown request send`);
-				} catch (e) {
-					if (e && e.code === grpc.status.NOT_FOUND) {
-						// Swallow, the pty has already been killed
-					} else {
-						context.logger.error(`${alias} terminal: shutdown failed:`, e);
-						console.error(`${alias} terminal: shutdown failed:`, e);
-					}
-				}
-			}, 5000);
-
+		close: () => {
+			// Do nothing as this gets fired when user kill terminal using UI
+			// and when closing the window.
+			// To really kill the terminal user must type `exit`
 		},
 		handleInput: async (data: string) => {
 			if (token.isCancellationRequested) {
