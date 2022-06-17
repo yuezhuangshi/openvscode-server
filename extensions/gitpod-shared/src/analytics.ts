@@ -24,7 +24,10 @@ interface GAET<N extends string, P> {
 }
 
 export type GitpodAnalyticsEvent =
-	GAET<'vscode_session', {}> |
+	GAET<'vscode_session', {
+		anonymousId?: string;
+		machineIdentity?: boolean;
+	}> |
 	GAET<'vscode_execute_command_gitpod_open_link', {
 		url: string;
 	}> |
@@ -44,10 +47,6 @@ export type GitpodAnalyticsEvent =
 	GAET<'vscode_active_language', {
 		lang: string; ext?: string;
 	}>;
-
-export function registerUsageAnalytics(context: GitpodExtensionContext): void {
-	context.fireAnalyticsEvent({ eventName: 'vscode_session', properties: {} });
-}
 
 const activeLanguages = new Set<String>();
 export function registerActiveLanguageAnalytics(context: GitpodExtensionContext): void {

@@ -3,7 +3,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
-import { registerActiveLanguageAnalytics, registerUsageAnalytics } from './analytics';
+import { registerActiveLanguageAnalytics } from './analytics';
 import { createGitpodExtensionContext, GitpodExtensionContext, registerDefaultLayout, registerNotifications, registerWorkspaceCommands, registerWorkspaceSharing, registerWorkspaceTimeout } from './features';
 
 export { GitpodExtensionContext, registerTasks, SupervisorConnection, registerIpcHookCli } from './features';
@@ -25,7 +25,6 @@ export async function setupGitpodContext(context: vscode.ExtensionContext): Prom
 	vscode.commands.executeCommand('setContext', 'gitpod.ideAlias', gitpodContext.info.getIdeAlias());
 	vscode.commands.executeCommand('setContext', 'gitpod.UIKind', vscode.env.uiKind === vscode.UIKind.Web ? 'web' : 'desktop');
 
-	registerUsageAnalytics(gitpodContext);
 	registerActiveLanguageAnalytics(gitpodContext);
 	registerWorkspaceCommands(gitpodContext);
 	registerWorkspaceSharing(gitpodContext);

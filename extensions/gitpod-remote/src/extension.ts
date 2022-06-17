@@ -17,6 +17,16 @@ export async function activate(context: vscode.ExtensionContext) {
 		return;
 	}
 
+	let localMachineId: string | undefined;
+	try {
+		// Invoke command from gitpot-desktop extension
+		localMachineId = await vscode.commands.executeCommand('__gitpod.getLocalMachineId');
+	} catch {
+		// Ignore if not found
+	}
+	gitpodContext.fireAnalyticsEvent({ eventName: 'vscode_session', properties: {} });
+	gitpodContext.fireAnalyticsEvent({ eventName: 'vscode_session', properties: { anonymousId: localMachineId, machineIdentity: true } });
+
 	if (vscode.extensions.getExtension('gitpod.gitpod')) {
 		try {
 			await util.promisify(cp.exec)('code --uninstall-extension gitpod.gitpod');

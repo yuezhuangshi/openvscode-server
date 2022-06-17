@@ -32,6 +32,8 @@ export async function activate(context: vscode.ExtensionContext) {
 		return;
 	}
 
+	gitpodContext.fireAnalyticsEvent({ eventName: 'vscode_session', properties: {} });
+
 	registerDesktop();
 	registerAuth(gitpodContext);
 	registerPorts(gitpodContext);
