@@ -303,17 +303,17 @@ export class WebClientServer {
 			.replace('{{WORKBENCH_AUTH_SESSION}}', () => authSessionInfo ? escapeAttribute(JSON.stringify(authSessionInfo)) : '');
 
 		const cspDirectives = [
-			'default-src \'self\';',
-			'img-src \'self\' https: data: blob:;',
-			'media-src \'self\';',
-			`script-src 'self' 'unsafe-eval' ${this._getScriptCspHashes(data).join(' ')} 'sha256-fh3TwPMflhsEIpR8g1OYTIMVWhXTLcjQ9kh2tIpmv54=' http://${remoteAuthority};`, // the sha is the same as in src/vs/workbench/services/extensions/worker/webWorkerExtensionHostIframe.html
-			'child-src \'self\';',
-			`frame-src 'self' https://*.vscode-cdn.net data:;`,
-			'worker-src \'self\' data:;',
-			'style-src \'self\' \'unsafe-inline\';',
-			'connect-src \'self\' ws: wss: https:;',
-			'font-src \'self\' blob:;',
-			'manifest-src \'self\';'
+			'default-src \'self\' https://static.webide.tech;',
+			'img-src \'self\' https://static.webide.tech https: data: blob:;',
+			'media-src \'self\' https://static.webide.tech;',
+			`script-src 'self' 'unsafe-eval' ${this._getScriptCspHashes(data).join(' ')} 'sha256-fh3TwPMflhsEIpR8g1OYTIMVWhXTLcjQ9kh2tIpmv54=' http://${remoteAuthority} https://static.webide.tech;`, // the sha is the same as in src/vs/workbench/services/extensions/worker/webWorkerExtensionHostIframe.html
+			'child-src \'self\' https://static.webide.tech;',
+			`frame-src 'self' https://*.vscode-cdn.net https://static.webide.tech data:;`,
+			'worker-src \'self\' https://static.webide.tech data:;',
+			'style-src \'self\' \'unsafe-inline\' https://static.webide.tech;',
+			'connect-src \'self\' https://static.webide.tech ws: wss: https:;',
+			'font-src \'self\' https://static.webide.tech blob:;',
+			'manifest-src \'self\' https://static.webide.tech;'
 		].join(' ');
 
 		const headers: http.OutgoingHttpHeaders = {
