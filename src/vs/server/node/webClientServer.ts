@@ -309,9 +309,9 @@ export class WebClientServer {
 			`script-src 'self' 'unsafe-eval' ${this._getScriptCspHashes(data).join(' ')} 'sha256-fh3TwPMflhsEIpR8g1OYTIMVWhXTLcjQ9kh2tIpmv54=' http://${remoteAuthority} https://static.webide.tech;`, // the sha is the same as in src/vs/workbench/services/extensions/worker/webWorkerExtensionHostIframe.html
 			'child-src \'self\' https://static.webide.tech;',
 			`frame-src 'self' https://*.vscode-cdn.net https://static.webide.tech data:;`,
-			'worker-src \'self\' https://static.webide.tech data:;',
+			'worker-src \'self\' https://static.webide.tech data: blob:;',
 			'style-src \'self\' \'unsafe-inline\' https://static.webide.tech;',
-			'connect-src \'self\' https://static.webide.tech ws: wss: https:;',
+			'connect-src \'self\' https://static.webide.tech ws: wss: http: https:;',
 			'font-src \'self\' https://static.webide.tech blob:;',
 			'manifest-src \'self\' https://static.webide.tech;'
 		].join(' ');
