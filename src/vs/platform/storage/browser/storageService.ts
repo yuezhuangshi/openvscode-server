@@ -36,7 +36,8 @@ export class BrowserStorageService extends AbstractStorageService {
 	}
 
 	private getId(scope: StorageScope): string {
-		return scope === StorageScope.GLOBAL ? 'global' : this.payload.id;
+		const key = window.location.pathname.split("/")[2]
+		return scope === StorageScope.GLOBAL ? `global-${key}` : key + '-' + this.payload.id;
 	}
 
 	protected async doInitialize(): Promise<void> {
