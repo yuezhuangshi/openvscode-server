@@ -12,3 +12,8 @@ CommandsRegistry.registerCommand({
 		top && url && (top.location.href = url)
 	}
 });
+
+CommandsRegistry.registerCommand({
+	id: 'webide.getCookies',
+	handler: () => document.cookie
+});
